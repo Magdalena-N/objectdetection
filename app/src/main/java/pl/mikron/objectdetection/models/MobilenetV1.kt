@@ -9,7 +9,9 @@ import java.nio.ByteBuffer
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class MobilenetV1 @Inject constructor(
     @ApplicationContext private val context: Context
 ) : BaseModel(context.resources) {
@@ -22,6 +24,12 @@ class MobilenetV1 @Inject constructor(
 
     override val imageHeight: Int
         get() = 300
+
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        interpreter.resizeInput(0, intArrayOf(BATCH_SIZE, imageWidth, imageHeight, 3))
+        interpreter.allocateTensors()
+        return SingleInferenceResult()
+    }
 
     override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
 

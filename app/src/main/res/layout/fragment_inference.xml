@@ -14,7 +14,50 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/infoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="48dp"
+            android:text="The inference is in progress, please do not close the app!"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/space"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/progressPhase"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/infoText"
+            app:layout_constraintVertical_weight="1" />
+
         <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressPhase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginBottom="12dp"
+            android:max="@{viewModel.phaseTotalProgress}"
+            android:min="0"
+            android:progress="@{viewModel.phaseProgress}"
+            app:layout_constraintBottom_toTopOf="@+id/progressTotal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/space"
+            app:layout_constraintVertical_bias="1"
+            app:trackCornerRadius="12dp"
+            app:trackThickness="24dp" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/progressTotal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="32dp"
@@ -23,11 +66,11 @@
             android:min="0"
             android:progress="@{viewModel.currentProgress}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/progressPhase"
             app:trackCornerRadius="12dp"
-            app:trackThickness="24dp"
-            app:visible="@{viewModel.inProgress}" />
+            app:trackThickness="24dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

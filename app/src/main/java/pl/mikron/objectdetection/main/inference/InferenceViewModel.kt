@@ -1,9 +1,6 @@
 package pl.mikron.objectdetection.main.inference
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -27,14 +24,18 @@ class InferenceViewModel @Inject constructor(
 
         _inProgress.postValue(true)
 
-        val modelResults: List<ModelResult> =
-            models.mapIndexed { index, model ->
-                _currentProgress.postValue(index)
-                ModelResult(model.getName(), model.inferOnSingle())
-            }
+        val modelResults: MutableList<ModelResult> = mutableListOf()
 
-        // TODO: Enable save again.
-//        database.addInferenceResult(modelResults)
+        repeat(INFERENCES_PER_DATA_SET) {
+            val newResults: List<ModelResult> =
+                models.mapIndexed { index, model ->
+                    increaseProgress()
+                    ModelResult(model.getName(), model.inferOnSingle())
+                }
+            modelResults.addAll(newResults)
+        }
+
+        database.addInferenceResult(modelResults)
 
         _inProgress.postValue(false)
     }
@@ -44,7 +45,7 @@ class InferenceViewModel @Inject constructor(
         _inProgress.postValue(false)
     }
 
-    val totalProgress: LiveData<Int> =
+    val phaseTotalProgress: LiveData<Int> =
         MutableLiveData(models.count())
 
     private val _currentProgress: MutableLiveData<Int> =
@@ -53,9 +54,23 @@ class InferenceViewModel @Inject constructor(
     val currentProgress: LiveData<Int> =
         _currentProgress
 
+    val phaseProgress: LiveData<Int> =
+        _currentProgress.map { it % INFERENCES_PER_DATA_SET }
+
+    private fun increaseProgress() {
+        _currentProgress.postValue(currentProgress.value?.plus(1))
+    }
+
+    val totalProgress: LiveData<Int> =
+        phaseTotalProgress.map { it * INFERENCES_PER_DATA_SET }
+
     private val _inProgress: MutableLiveData<Boolean> =
         MutableLiveData(false)
 
     val inProgress: LiveData<Boolean> =
         _inProgress
+
+    companion object {
+        const val INFERENCES_PER_DATA_SET = 5
+    }
 }

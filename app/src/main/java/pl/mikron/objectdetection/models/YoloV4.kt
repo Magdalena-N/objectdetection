@@ -26,6 +26,10 @@ class YoloV4 @Inject constructor(
     override val imageHeight: Int
         get() = 416
 
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        return SingleInferenceResult()
+    }
+
     override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
 
         val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3 * Float.SIZE_BYTES)

@@ -5,18 +5,29 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.IntoSet
-import pl.mikron.objectdetection.models.MobilenetV1
-import pl.mikron.objectdetection.models.MobilenetV2
-import pl.mikron.objectdetection.models.ModelLifecycle
+import pl.mikron.objectdetection.models.*
+import pl.mikron.objectdetection.models.utils.EfficientNet
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class ModelModule {
 
-    @[Binds IntoSet Singleton]
-    abstract fun mobilenetV1(model: MobilenetV1): ModelLifecycle
+//    @[Binds IntoSet Singleton]
+//    abstract fun mobilenetV1(model: MobilenetV1): ModelLifecycle
+//
+//    @[Binds IntoSet Singleton]
+//    abstract fun mobilenetV2(model: MobilenetV2): ModelLifecycle
+//
+//    @[Binds IntoSet Singleton]
+//    abstract fun mobilenetV3(model: MobilenetV3Large): ModelLifecycle
+//
+//    @[Binds IntoSet Singleton]
+//    abstract fun yoloV5(model: YoloV5): ModelLifecycle
+//
+//    @[Binds IntoSet Singleton]
+//    abstract fun efficientDet(model: EfficientDet): ModelLifecycle
 
     @[Binds IntoSet Singleton]
-    abstract fun mobilenetV2(model: MobilenetV2): ModelLifecycle
+    abstract fun efficientNet(model: EfficientNet): ModelLifecycle
 }

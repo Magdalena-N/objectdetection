@@ -2,7 +2,11 @@ package pl.mikron.objectdetection.models
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
+import androidx.core.graphics.blue
 import androidx.core.graphics.get
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pl.mikron.objectdetection.models.data.COCOLabels
 import pl.mikron.objectdetection.network.result.SingleInferenceResult
@@ -13,18 +17,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SsdMobilenet @Inject constructor(
+class YoloV5 @Inject constructor(
     @ApplicationContext private val context: Context
 ) : BaseModel(context.resources) {
 
     override val modelName: String =
-        "ssd_mobilenet"
+        "YoloV5"
 
     override val imageWidth: Int
-        get() = 300
+        get() = 320
 
     override val imageHeight: Int
-        get() = 300
+        get() = 320
 
     override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
         return SingleInferenceResult()
@@ -32,49 +36,39 @@ class SsdMobilenet @Inject constructor(
 
     override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
 
-        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3)
-        inputData.rewind()
+        val inputData = Array(1) { Array(320) { Array(320) {FloatArray(3)} } }
 
         for (x in 0 until imageWidth) {
             for (y in 0 until imageHeight) {
                 val pixel = bitmap[y, x]
-                inputData.put((pixel shr 16 and 0xFF).toByte())
-                inputData.put((pixel shr 8 and 0xFF).toByte())
-                inputData.put((pixel and 0xFF).toByte())
+                inputData[0][x][y][0] = pixel.red / 255F
+                inputData[0][x][y][0] = pixel.green / 255F
+                inputData[0][x][y][0] = pixel.blue / 255F
             }
         }
-
-        inputData.rewind()
 
         bitmap.recycle()
 
-        val outputLocations = Array(1) { Array(10) { FloatArray(4) } }
-        val outputClasses = Array(1) { FloatArray(10) }
-        val outputScores = Array(1) { FloatArray(10) }
-        val numDetections = FloatArray(1)
-
-        val outputMap: MutableMap<Int, Any> = HashMap()
-
-        outputMap[0] = outputLocations
-        outputMap[1] = outputClasses
-        outputMap[2] = outputScores
-        outputMap[3] = numDetections
-
-        interpreter.getInputTensor(0)
+        val outputLocations = Array(1) { Array(6300) { FloatArray(85) } }
 
         val timeStart = System.nanoTime()
 
-        interpreter.runForMultipleInputsOutputs(arrayOf(inputData), outputMap)
+        interpreter.run(inputData, outputLocations)
 
         val timeEnd = System.nanoTime()
 
-        Logger.getGlobal().log(Level.SEVERE, "Number of detections: ${numDetections[0]}")
-
-        for (x in 0 until numDetections[0].toInt()) {
-            if (outputClasses[0][x] != 0f) {
-                Logger.getGlobal().log(Level.SEVERE, "Class: ${COCOLabels.getLabelFor(outputClasses[0][x])} in box: ${outputLocations[0][x][0]}, ${outputLocations[0][x][1]}, ${outputLocations[0][x][2]}, ${outputLocations[0][x][3]}, confidence: ${outputScores[0][x]}")
+        for (l in 0..6299) {
+            for (c in 0..84) {
+                if (outputLocations[0][l][c] > 0.9) {
+                    Log.e(modelName, "${COCOLabels.getLabelFor(c.toFloat())} ${outputLocations[0][l][c]}")
+                }
             }
         }
+
+        Log.e(
+            modelName,
+            outputLocations[0].joinToString { it.joinToString() }
+        )
 
         val result = SingleInferenceResult(
             durationInterpreter = interpreter.lastNativeInferenceDurationNanoseconds,

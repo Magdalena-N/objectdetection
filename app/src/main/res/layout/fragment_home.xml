@@ -34,10 +34,10 @@
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <!--        <TextView-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:text="@{systemData}" />-->
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="@{systemData}" />-->
 
         <Space
             android:layout_width="0dp"
@@ -52,6 +52,7 @@
             android:layout_marginBottom="24dp"
             android:minHeight="64dp"
             android:text="Start test"
+            android:enabled="@{viewModel.testAvailable}"
             android:onClick="@{() -> viewModel.testClicked()}"/>
 
     </LinearLayout>

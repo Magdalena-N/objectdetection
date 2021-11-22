@@ -81,5 +81,5 @@ dependencies {
 
     // Tensorflow
     implementation 'org.tensorflow:tensorflow-lite:2.5.0'
-
+    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:2.5.0'
 }
