@@ -26,11 +26,11 @@ class InferenceViewModel @Inject constructor(
 
         val modelResults: MutableList<ModelResult> = mutableListOf()
 
-        repeat(INFERENCES_PER_DATA_SET) {
+        repeat(INFERENCES_PER_DATA_SET) {round ->
             val newResults: List<ModelResult> =
-                models.mapIndexed { index, model ->
+                models.map { model ->
                     increaseProgress()
-                    ModelResult(model.getName(), model.inferOnSingle())
+                    ModelResult(model.getName(), round, model.inferOnSingle())
                 }
             modelResults.addAll(newResults)
         }

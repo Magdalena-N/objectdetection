@@ -56,6 +56,7 @@ abstract class BaseModel(private val resources: Resources) : ModelLifecycle {
         suspendCoroutine { continuation ->
             val results = loadSingleInferenceImages()
                 .map(::inferSingleImage)
+                .drop(1)
             continuation.resume(results)
         }
 
