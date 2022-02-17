@@ -17,10 +17,7 @@ abstract class BaseFragment<Binding: ViewDataBinding, VM: ViewModel> : Fragment(
     @get:LayoutRes
     abstract val layoutRes: Int
 
-    private var _binding: Binding? = null
-
-    protected val binding: Binding
-        get() = _binding ?: throw Throwable("Binding not available.")
+    protected lateinit var binding: Binding
 
     abstract fun createBinding(binding: Binding)
 
@@ -30,19 +27,12 @@ abstract class BaseFragment<Binding: ViewDataBinding, VM: ViewModel> : Fragment(
         savedInstanceState: Bundle?
     ): View {
 
-        _binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
+        binding = DataBindingUtil.inflate(inflater, layoutRes, container, false)
 
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         createBinding(binding)
 
         return binding.root
     }
-
-    override fun onDestroyView() {
-        _binding = null
-
-        super.onDestroyView()
-    }
-
 }

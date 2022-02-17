@@ -12,7 +12,6 @@ import pl.mikron.objectdetection.databinding.FragmentInferenceBinding
 
 @AndroidEntryPoint
 class InferenceFragment : BaseFragment<FragmentInferenceBinding, InferenceViewModel>() {
-
     override val viewModel: InferenceViewModel
             by viewModels()
 
@@ -29,19 +28,21 @@ class InferenceFragment : BaseFragment<FragmentInferenceBinding, InferenceViewMo
 
         requireActivity()
             .onBackPressedDispatcher
-            .addCallback(viewLifecycleOwner) {
-                showConfirmDialog()
-            }
+            .addCallback(viewLifecycleOwner) { }
 
         viewModel.performTest()
+        viewModel.finished.observe(viewLifecycleOwner) { showFinishedDialog() }
     }
 
-    private fun showConfirmDialog() {
+    private fun showFinishedDialog() {
         AlertDialog
             .Builder(requireContext())
-            .setTitle("Are you sure you want to quit and stop the test?")
-            .setPositiveButton("Yes") { _, _ -> requireActivity().finishAffinity() }
-            .setNegativeButton("No") { _, _ -> }
+            .setTitle("Success!")
+            .setMessage("The results are already on the remote server. " +
+                    "Thank you for your contribution. " +
+                    "You can now safely uninstall the application.")
+            .setPositiveButton("Ok") { _, _ -> requireActivity().finishAffinity() }
+            .setCancelable(false)
             .show()
     }
 }

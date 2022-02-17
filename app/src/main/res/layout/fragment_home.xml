@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -22,38 +21,46 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="TODO: Info about the experiment and instructions"
-            android:textSize="18sp" />
+            android:paddingHorizontal="24dp"
+            android:text="Than you for participating in our experiment."
+            android:textAlignment="center"
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
-            android:text="Device details:"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-<!--                <TextView-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="@{systemData}" />-->
+            android:layout_marginTop="24dp"
+            android:paddingHorizontal="24dp"
+            android:text="The test should take around 5 to 10 minutes. After that, all the results will be posted to the remote server. Please do not perform any actions during this time, and do not minimise the application."
+            android:textAlignment="center"
+            android:textSize="18sp" />
 
         <Space
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:paddingHorizontal="24dp"
+            android:text="Before you begin, make sure there are no other apps running in the background."
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/testButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="24dp"
-            android:minHeight="64dp"
-            android:text="Start test"
             android:enabled="@{viewModel.testAvailable}"
-            android:onClick="@{() -> viewModel.testClicked()}"/>
+            android:minHeight="64dp"
+            android:onClick="@{() -> viewModel.testClicked()}"
+            android:text="Start test" />
 
     </LinearLayout>
 

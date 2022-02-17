@@ -4,11 +4,9 @@ import pl.mikron.objectdetection.network.result.SingleInferenceResult
 
 interface ModelLifecycle {
 
-    fun getName(): String
+    val name: String
 
-    suspend fun initModel()
+    suspend fun initialize()
 
-    suspend fun inferOnSingle() : List<SingleInferenceResult>
-
-    suspend fun inferOnBatch() : List<SingleInferenceResult>
+    suspend fun infer() : List<SingleInferenceResult>
 }

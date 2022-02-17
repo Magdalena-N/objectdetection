@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    _models: Set<@JvmSuppressWildcards ModelLifecycle>
+    _models: MutableSet<ModelLifecycle>
     ) : ViewModel() {
 
     val models = _models.toList()
@@ -35,7 +35,7 @@ class SplashViewModel @Inject constructor(
     internal fun initializeModel() =
         viewModelScope.launch(Dispatchers.Default + errorHandler) {
 
-            models.forEach { it.initModel() }
+            models.forEach { it.initialize() }
 
             _modelInitialized.post()
         }

@@ -1,14 +1,13 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
+    id "androidx.navigation.safeargs"
+    id 'com.google.firebase.appdistribution'
 }
-
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: "androidx.navigation.safeargs"
 
 android {
     compileSdkVersion 30
@@ -24,11 +23,26 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        debug {
+            keyAlias = "debug"
+            keyPassword = "objectdetection"
+            storePassword = "objectdetection"
+            storeFile = rootProject.file("signing/debug.jks")
+        }
+    }
+
     buildFeatures {
         dataBinding true
     }
 
     buildTypes {
+        debug {
+            firebaseAppDistribution {
+                serviceCredentialsFile =
+                        rootProject.file("signing/google-services.json")
+            }
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -80,6 +94,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-ml-modeldownloader'
 
     // Tensorflow
-    implementation 'org.tensorflow:tensorflow-lite:2.5.0'
-    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:2.5.0'
+    implementation 'org.tensorflow:tensorflow-lite:2.8.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.8.0'
+    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:2.8.0'
 }

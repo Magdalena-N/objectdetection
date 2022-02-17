@@ -1,13 +1,16 @@
 package pl.mikron.objectdetection.main.inference
 
+import android.os.Build
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pl.mikron.objectdetection.models.ModelLifecycle
 import pl.mikron.objectdetection.network.Database
 import pl.mikron.objectdetection.network.result.ModelResult
+import pl.mikron.objectdetection.utils.SingleLiveEvent
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.inject.Inject
@@ -15,14 +18,12 @@ import javax.inject.Inject
 @HiltViewModel
 class InferenceViewModel @Inject constructor(
     private val database: Database,
-    _models: Set<@JvmSuppressWildcards ModelLifecycle>
+    _models: MutableSet<ModelLifecycle>
 ) : ViewModel() {
 
     private val models = _models.toList()
 
     internal fun performTest() = viewModelScope.launch(Dispatchers.Default + errorHandler) {
-
-        _inProgress.postValue(true)
 
         val modelResults: MutableList<ModelResult> = mutableListOf()
 
@@ -30,23 +31,33 @@ class InferenceViewModel @Inject constructor(
             val newResults: List<ModelResult> =
                 models.map { model ->
                     increaseProgress()
-                    ModelResult(model.getName(), round, model.inferOnSingle())
+                    ModelResult(model.name, round, model.infer())
                 }
             modelResults.addAll(newResults)
         }
 
         database.addInferenceResult(modelResults)
 
-        _inProgress.postValue(false)
+        _finished.post()
     }
 
     private val errorHandler = CoroutineExceptionHandler { _, error ->
         Logger.getGlobal().log(Level.SEVERE, error) { error.toString() }
-        _inProgress.postValue(false)
     }
 
+    val systemData: LiveData<String> = MutableLiveData(
+        listOf(
+            Build.MANUFACTURER,
+            Build.MODEL,
+            Build.HARDWARE,
+            Build.BOARD,
+            Build.VERSION.SDK_INT
+        ).joinToString(separator = "\n")
+    )
+
+    private val phase =  models.count()
     val phaseTotalProgress: LiveData<Int> =
-        MutableLiveData(models.count())
+        MutableLiveData(phase)
 
     private val _currentProgress: MutableLiveData<Int> =
         MutableLiveData(0)
@@ -55,22 +66,23 @@ class InferenceViewModel @Inject constructor(
         _currentProgress
 
     val phaseProgress: LiveData<Int> =
-        _currentProgress.map { it % INFERENCES_PER_DATA_SET }
+        _currentProgress.map { InferenceProgress(total, phase, it).get() }
 
     private fun increaseProgress() {
         _currentProgress.postValue(currentProgress.value?.plus(1))
     }
 
+    private val total = phase * INFERENCES_PER_DATA_SET
     val totalProgress: LiveData<Int> =
-        phaseTotalProgress.map { it * INFERENCES_PER_DATA_SET }
+        MutableLiveData(total)
 
-    private val _inProgress: MutableLiveData<Boolean> =
-        MutableLiveData(false)
+    private val _finished: SingleLiveEvent<Unit> =
+        SingleLiveEvent()
 
-    val inProgress: LiveData<Boolean> =
-        _inProgress
+    internal val finished: LiveData<Unit> =
+        _finished
 
     companion object {
-        const val INFERENCES_PER_DATA_SET = 5
+        const val INFERENCES_PER_DATA_SET = 3
     }
 }

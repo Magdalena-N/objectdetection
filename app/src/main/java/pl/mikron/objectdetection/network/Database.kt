@@ -13,10 +13,9 @@ class Database @Inject constructor() {
 
     private val database = Firebase.firestore
 
-
     fun addInferenceResult(results: List<ModelResult>) =
         database
-            .collection("single_full")
+            .collection("prod")
             .document()
             .set(FinalResult(
                 SystemInfo(),

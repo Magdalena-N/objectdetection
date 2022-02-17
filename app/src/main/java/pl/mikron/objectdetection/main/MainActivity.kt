@@ -1,6 +1,7 @@
 package pl.mikron.objectdetection.main
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -22,5 +23,7 @@ class MainActivity : AppCompatActivity() {
 
         binding
                 .also { it.viewModel = viewModel }
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 }

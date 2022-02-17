@@ -12,7 +12,6 @@ import pl.mikron.objectdetection.R
 import pl.mikron.objectdetection.base.BaseFragment
 import pl.mikron.objectdetection.databinding.FragmentHomeBinding
 import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
