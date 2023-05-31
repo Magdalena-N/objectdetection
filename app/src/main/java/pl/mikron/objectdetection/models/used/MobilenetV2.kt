@@ -26,7 +26,7 @@ class MobilenetV2 @Inject constructor(
 
     override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
 
-        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3)
+        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3*4)
         inputData.rewind()
 
         for (x in 0 until imageWidth) {
@@ -40,9 +40,9 @@ class MobilenetV2 @Inject constructor(
 
         bitmap.recycle()
 
-        val outputLocations = Array(1) { Array(100) { FloatArray(4) } }
-        val outputClasses = Array(1) { FloatArray(100) }
-        val outputScores = Array(1) { FloatArray(100) }
+        val outputLocations = Array(1) { Array(10) { FloatArray(4) } }
+        val outputClasses = Array(1) { FloatArray(10) }
+        val outputScores = Array(1) { FloatArray(10) }
         val numDetections = FloatArray(1)
 
         val outputMap: MutableMap<Int, Any> = HashMap()
@@ -62,5 +62,9 @@ class MobilenetV2 @Inject constructor(
             durationInterpreter = interpreter.lastNativeInferenceDurationNanoseconds,
             durationMeasured = timeEnd - timeStart
         )
+    }
+
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        TODO("Not yet implemented")
     }
 }

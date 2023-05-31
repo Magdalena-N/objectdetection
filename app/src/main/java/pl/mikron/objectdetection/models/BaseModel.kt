@@ -60,10 +60,30 @@ abstract class BaseModel(private val resources: Resources) : ModelLifecycle {
             continuation.resume(results)
         }
 
+    override suspend fun inferOnBatch(): List<SingleInferenceResult> =
+        suspendCoroutine { continuation ->
+            val results = loadBatchInferenceImages()
+                .map(::inferForBatch)
+            continuation.resume(results)
+        }
+
     abstract fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult
+
+    abstract fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult
 
     private fun loadSingleInferenceImages(): List<Bitmap> =
         TestData.getSingleInferenceDataSet().map(::loadBitmapFromResource)
+
+    private fun loadBatchInferenceImages(): List<List<Bitmap>> =
+        TestData
+            .getSingleInferenceDataSet()
+            .asSequence()
+            .map(::loadBitmapFromResource)
+            .mapIndexed { index, bitmap -> Pair(index % BATCH_SIZE, bitmap) }
+            .groupBy { it.first }
+            .map { it.value }
+            .map { it.map { pair -> pair.second } }
+            .toList()
 
     private fun loadBitmapFromResource(resourceId: Int): Bitmap {
 
@@ -75,4 +95,9 @@ abstract class BaseModel(private val resources: Resources) : ModelLifecycle {
 
         return scaledBitmap
     }
+
+    companion object {
+        const val BATCH_SIZE = 4
+    }
+
 }

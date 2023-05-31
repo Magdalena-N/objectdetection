@@ -35,8 +35,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>() {
             .addCallback(viewLifecycleOwner) {
                 requireActivity().finish()
             }
-
-        if (SystemClock.elapsedRealtime() > Duration.ofMinutes(5).toMillis()) {
+        //TODO: zmienić czas reboota
+        if (SystemClock.elapsedRealtime() > Duration.ofMinutes(100).toMillis()) {
             viewModel.disableTest()
             showRestartDialog()
         }

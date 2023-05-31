@@ -26,7 +26,7 @@ class MobilenetV1 @Inject constructor(
 
     override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
 
-        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3)
+        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3 * 4)
         inputData.rewind()
 
         for (x in 0 until imageWidth) {
@@ -57,6 +57,43 @@ class MobilenetV1 @Inject constructor(
         val timeStart = System.nanoTime()
 
         interpreter.runForMultipleInputsOutputs(arrayOf(inputData), outputMap)
+
+        val timeEnd = System.nanoTime()
+        try {
+            Thread.sleep(2000)
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+        return SingleInferenceResult(
+            durationInterpreter = interpreter.lastNativeInferenceDurationNanoseconds,
+            durationMeasured = timeEnd - timeStart
+        )
+    }
+
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        interpreter.resizeInput(0, intArrayOf(BATCH_SIZE, imageWidth, imageHeight, 3))
+        interpreter.allocateTensors()
+
+        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3 * BATCH_SIZE)
+        inputData.rewind()
+
+        for (b in 0 until BATCH_SIZE) {
+            for (x in 0 until imageWidth) {
+                for (y in 0 until imageHeight) {
+                    val pixel = bitmaps[b][y, x]
+                    inputData.put((pixel shr 16 and 0xFF).toByte())
+                    inputData.put((pixel shr 8 and 0xFF).toByte())
+                    inputData.put((pixel and 0xFF).toByte())
+                }
+            }
+        }
+
+
+//        bitmaps.forEach { it.recycle() }
+
+        val timeStart = System.nanoTime()
+
+        interpreter.run(inputData, ByteBuffer.allocate(5904))
 
         val timeEnd = System.nanoTime()
 

@@ -68,4 +68,38 @@ class MobilenetV3Large @Inject constructor(
             durationMeasured = timeEnd - timeStart
         )
     }
+
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        interpreter.resizeInput(0, intArrayOf(BATCH_SIZE, imageWidth, imageHeight, 3))
+        interpreter.allocateTensors()
+
+        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3 * BATCH_SIZE)
+        inputData.rewind()
+
+        for (b in 0 until BATCH_SIZE) {
+            for (x in 0 until imageWidth) {
+                for (y in 0 until imageHeight) {
+                    val pixel = bitmaps[b][y, x]
+                    inputData.put((pixel shr 16 and 0xFF).toByte())
+                    inputData.put((pixel shr 8 and 0xFF).toByte())
+                    inputData.put((pixel and 0xFF).toByte())
+                }
+            }
+        }
+
+
+        bitmaps.forEach { it.recycle() }
+
+        val timeStart = System.nanoTime()
+
+        interpreter.run(inputData, ByteBuffer.allocate(5904))
+
+        val timeEnd = System.nanoTime()
+
+        return SingleInferenceResult(
+            durationInterpreter = interpreter.lastNativeInferenceDurationNanoseconds,
+            durationMeasured = timeEnd - timeStart
+        )
+
+    }
 }

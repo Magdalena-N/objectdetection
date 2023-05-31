@@ -67,4 +67,8 @@ class EfficientNet @Inject constructor(
             durationMeasured = timeEnd - timeStart
         )
     }
+
+    override fun inferForBatch(bitmaps: List<Bitmap>): SingleInferenceResult {
+        TODO("Not yet implemented")
+    }
 }

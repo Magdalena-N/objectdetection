@@ -9,4 +9,6 @@ interface ModelLifecycle {
     suspend fun initialize()
 
     suspend fun infer() : List<SingleInferenceResult>
+
+    suspend fun inferOnBatch() : List<SingleInferenceResult>
 }

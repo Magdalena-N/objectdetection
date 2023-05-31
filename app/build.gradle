@@ -28,7 +28,7 @@ android {
             keyAlias = "debug"
             keyPassword = "objectdetection"
             storePassword = "objectdetection"
-            storeFile = rootProject.file("signing/debug.jks")
+            storeFile rootProject.file("signing/debug.jks")
         }
     }
 
@@ -38,14 +38,22 @@ android {
 
     buildTypes {
         debug {
-            firebaseAppDistribution {
-                serviceCredentialsFile =
-                        rootProject.file("signing/google-services.json")
-            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//            firebaseAppDistribution {
+//                serviceCredentialsFile =
+//                        rootProject.file("signing/google-services.json")
+//            }
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            firebaseAppDistribution {
+                serviceCredentialsFile =
+                        rootProject.file("signing/google-services.json")
+                appId="1:95208337229:android:ca57fcd4bea3ece31cd104"
+                artifactType="APK"
+            }
         }
     }
     compileOptions {

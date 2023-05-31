@@ -31,7 +31,7 @@ class InferenceViewModel @Inject constructor(
             val newResults: List<ModelResult> =
                 models.map { model ->
                     increaseProgress()
-                    ModelResult(model.name, round, model.infer())
+                    ModelResult(model.name, round, model.inferOnBatch())
                 }
             modelResults.addAll(newResults)
         }
@@ -83,6 +83,6 @@ class InferenceViewModel @Inject constructor(
         _finished
 
     companion object {
-        const val INFERENCES_PER_DATA_SET = 3
+        const val INFERENCES_PER_DATA_SET = 1
     }
 }
