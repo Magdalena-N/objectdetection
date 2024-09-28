@@ -28,7 +28,7 @@ class MobilenetV3Large @Inject constructor(
     override val imageHeight: Int
         get() = 320
 
-    override fun inferSingleImage(bitmap: Bitmap): SingleInferenceResult {
+    override fun inferSingleImage(bitmap: Bitmap, delegateName: String): SingleInferenceResult {
 
         val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3)
         inputData.rewind()
@@ -59,6 +59,7 @@ class MobilenetV3Large @Inject constructor(
 
         val timeStart = System.nanoTime()
 
+        val interpreter = selectInterpreter(delegateName)
         interpreter.runForMultipleInputsOutputs(arrayOf(inputData), outputMap)
 
         val timeEnd = System.nanoTime()

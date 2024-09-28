@@ -2,62 +2,51 @@ package pl.mikron.objectdetection.models.used
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.core.graphics.blue
 import androidx.core.graphics.get
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 import dagger.hilt.android.qualifiers.ApplicationContext
 import pl.mikron.objectdetection.models.BaseModel
 import pl.mikron.objectdetection.network.result.SingleInferenceResult
-import java.nio.ByteBuffer
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class MobilenetV1 @Inject constructor(
+class YoloV5s @Inject constructor(
     @ApplicationContext private val context: Context
 ) : BaseModel(context.resources) {
 
     override val name: String =
-        "MobilenetV1_300x300"
+        "YoloV5s"
 
     override val imageWidth: Int
-        get() = 300
+        get() = 640
 
     override val imageHeight: Int
-        get() = 300
+        get() = 640
 
     override fun inferSingleImage(bitmap: Bitmap, delegateName: String): SingleInferenceResult {
 
-        val inputData = ByteBuffer.allocateDirect(imageWidth * imageHeight * 3)
-        inputData.rewind()
+        val inputData = Array(1) { Array(imageWidth) { Array(imageHeight) { FloatArray(3) } } }
 
         for (x in 0 until imageWidth) {
             for (y in 0 until imageHeight) {
                 val pixel = bitmap[y, x]
-                inputData.put((pixel shr 16 and 0xFF).toByte())
-                inputData.put((pixel shr 8 and 0xFF).toByte())
-                inputData.put((pixel and 0xFF).toByte())
+                inputData[0][x][y][0] = pixel.red / 255F
+                inputData[0][x][y][0] = pixel.green / 255F
+                inputData[0][x][y][0] = pixel.blue / 255F
             }
         }
 
-        inputData.rewind()
-
         bitmap.recycle()
 
-        val outputLocations = Array(1) { Array(10) { FloatArray(4) } }
-        val outputClasses = Array(1) { FloatArray(10) }
-        val outputScores = Array(1) { FloatArray(10) }
-        val numDetections = FloatArray(1)
-
-        val outputMap: MutableMap<Int, Any> = HashMap()
-
-        outputMap[0] = outputLocations
-        outputMap[1] = outputClasses
-        outputMap[2] = outputScores
-        outputMap[3] = numDetections
+        val outputLocations = Array(1) { Array(25200) { FloatArray(85) } }
 
         val timeStart = System.nanoTime()
 
         val interpreter = selectInterpreter(delegateName)
-        interpreter.runForMultipleInputsOutputs(arrayOf(inputData), outputMap)
+        interpreter.run(inputData, outputLocations)
 
         val timeEnd = System.nanoTime()
 

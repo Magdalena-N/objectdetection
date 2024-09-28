@@ -25,18 +25,25 @@ class InferenceViewModel @Inject constructor(
 
     internal fun performTest() = viewModelScope.launch(Dispatchers.Default + errorHandler) {
 
+        // Lista delegatów: różne ustawienia CPU i GPU
+        val delegateNames = listOf("CPU1", "CPU2","CPU4", "CPU5", "CPU6", "GPU")
         val modelResults: MutableList<ModelResult> = mutableListOf()
 
-        repeat(INFERENCES_PER_DATA_SET) {round ->
-            val newResults: List<ModelResult> =
-                models.map { model ->
-                    increaseProgress()
-                    ModelResult(model.name, round, model.infer())
-                }
-            modelResults.addAll(newResults)
-        }
+        for (delegateName in delegateNames) {
 
-        database.addInferenceResult(modelResults)
+
+            repeat(INFERENCES_PER_DATA_SET) { round ->
+                val newResults: List<ModelResult> =
+                    models.map { model ->
+                        increaseProgress()
+                        ModelResult(model.name, round, model.infer(delegateName), delegateName)
+                    }
+                modelResults.addAll(newResults)
+            }
+
+            database.addInferenceResult(modelResults)
+            modelResults.clear()
+        }
 
         _finished.post()
     }
@@ -72,7 +79,7 @@ class InferenceViewModel @Inject constructor(
         _currentProgress.postValue(currentProgress.value?.plus(1))
     }
 
-    private val total = phase * INFERENCES_PER_DATA_SET
+    private val total = phase * INFERENCES_PER_DATA_SET * 6
     val totalProgress: LiveData<Int> =
         MutableLiveData(total)
 
@@ -83,6 +90,6 @@ class InferenceViewModel @Inject constructor(
         _finished
 
     companion object {
-        const val INFERENCES_PER_DATA_SET = 3
+        const val INFERENCES_PER_DATA_SET = 5
     }
 }

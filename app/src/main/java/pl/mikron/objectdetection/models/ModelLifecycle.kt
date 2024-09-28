@@ -8,5 +8,5 @@ interface ModelLifecycle {
 
     suspend fun initialize()
 
-    suspend fun infer() : List<SingleInferenceResult>
+    suspend fun infer(delegateName: String) : List<SingleInferenceResult>
 }
