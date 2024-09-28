@@ -6,5 +6,7 @@ data class ModelResult(
 
     val round: Int = 0,
 
-    val results: List<SingleInferenceResult> = emptyList()
+    val results: List<SingleInferenceResult> = emptyList(),
+
+    val delegateName: String = ""
 )
